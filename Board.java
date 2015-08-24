@@ -4,9 +4,6 @@ public class Board {
    
    private final int[][] b;
    private final int N;
-   private final int man;
-   private final int ham;
-   private final boolean goal;
    // construct a board from an N-by-N array of blocks 
    // (where blocks[i][j] = block in row i, column j)
     public Board(int[][] blocks) {
@@ -23,29 +20,14 @@ public class Board {
           for (int j = 1; j <= N; j++) {
              b[i][j] = blocks[i-dy][j-dx];
           }
-       ham = hammingComp();
-       man = manhattanComp();
-       goal = isGoalComp();
     }
     
     public int dimension() {                // board dimension N
        return N;
     }
     
-    private int hammingComp() {
-       int num = 1, hm = 0, ns = N*N;
-       for (int i = 1; i <= N; i++)
-          for (int j = 1; j <= N && num < ns; j++) {
-             if ((b[i][j] != 0) && (b[i][j] != num))
-                hm++;
-             num++;
-          }
-       if (b[N][N] != 0)
-          hm++;
-       return hm;      
-    }
-    
-    private int manhattanComp() {
+   // sum of Manhattan distances between blocks and goal
+    public int manhattan() {
        int dr = 0;         // delta row
        int dc = 0;         // delta col
        int mn = 0;
@@ -53,7 +35,6 @@ public class Board {
        int num = 1;
        int[] er = new int[N*N+1]; // goal number row(er), and col(ec);
        int[] ec = new int[N*N+1];
-       ec = new int[N*N+1];
        for (int i = 1; i <= N; i++)
           for (int j = 1; j <= N; j++) {
              er[num] = i;
@@ -75,20 +56,28 @@ public class Board {
        return mn;
     }
 
-    private boolean isGoalComp() {
-       // return hamming() == 0;
+    public int hamming() { // number of blocks out of place
+       int num = 1, hm = 0, ns = N*N;
+       for (int i = 1; i <= N; i++)
+          for (int j = 1; j <= N && num < ns; j++) {
+             if ((b[i][j] != 0) && (b[i][j] != num))
+                hm++;
+             num++;
+          }
+       if (b[N][N] != 0)
+          hm++;
+       return hm;      
+    }
+
+    
+    public boolean isGoal() { // is this board the goal board?
        int num = 1, ns = N*N;
        for (int i = 1; i <= N; i++)
           for (int j = 1; j <= N && num < ns; j++)
              if (b[i][j] != num++)
                 return false;
        return true;       
-    }
-    
-    public int hamming() { return ham; } // number of blocks out of place
-    // sum of Manhattan distances between blocks and goal
-    public int manhattan() { return man; }
-    public boolean isGoal() { return goal; }              // is this board the goal board?
+    }              
     // a board that is obtained by exchanging two adjacent blocks in the same row
     public Board twin() {
        int k;
