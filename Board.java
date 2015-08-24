@@ -3,7 +3,6 @@ import edu.princeton.cs.algs4.Stack;
 public class Board {
    
    private final int[][] b;
-   private final int[] er, ec;              // goal number row(er), and col(ec);
    private final int N;
    private final int man;
    private final int ham;
@@ -20,17 +19,10 @@ public class Board {
           dx = 1;
        }
        b = new int[N+1][N+1];
-       er = new int[N*N+1];
-       ec = new int[N*N+1];
-       int num = 1;
        for (int i = 1; i <= N; i++)
           for (int j = 1; j <= N; j++) {
              b[i][j] = blocks[i-dy][j-dx];
-             er[num] = i;
-             ec[num++] = j;
           }
-       er[0] = er[--num];
-       ec[0] = ec[num];
        ham = hammingComp();
        man = manhattanComp();
        goal = isGoalComp();
@@ -43,9 +35,11 @@ public class Board {
     private int hammingComp() {
        int num = 1, hm = 0, ns = N*N;
        for (int i = 1; i <= N; i++)
-          for (int j = 1; j <= N && num < ns; j++)
-             if ((b[i][j] != 0) && (b[i][j] != num++))
+          for (int j = 1; j <= N && num < ns; j++) {
+             if ((b[i][j] != 0) && (b[i][j] != num))
                 hm++;
+             num++;
+          }
        if (b[N][N] != 0)
           hm++;
        return hm;      
@@ -56,6 +50,17 @@ public class Board {
        int dc = 0;         // delta col
        int mn = 0;
        int bb;             // number in tile
+       int num = 1;
+       int[] er = new int[N*N+1]; // goal number row(er), and col(ec);
+       int[] ec = new int[N*N+1];
+       ec = new int[N*N+1];
+       for (int i = 1; i <= N; i++)
+          for (int j = 1; j <= N; j++) {
+             er[num] = i;
+             ec[num++] = j;
+          }
+       er[0] = er[--num];
+       ec[0] = ec[num];
        for (int i = 1; i <= N; i++)
           for (int j = 1; j <= N; j++) {
              if (b[i][j] != 0) {
@@ -104,6 +109,7 @@ public class Board {
        if (y == null) return false;
        if (y.getClass() != this.getClass()) return false;
        Board that = (Board) y;
+       if (that.N != this.N) return false;
        for (int i = 1; i <= N; i++)
           for (int j = 1; j <= N; j++)
              if (that.b[i][j] != this.b[i][j])
