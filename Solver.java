@@ -1,6 +1,6 @@
 import edu.princeton.cs.algs4.MinPQ;
 import edu.princeton.cs.algs4.Stack;
-import edu.princeton.cs.algs4.StdOut;
+// import edu.princeton.cs.algs4.StdOut;
 
 
 public class Solver {
@@ -34,11 +34,11 @@ public class Solver {
           if (sn.goal) {
              goal = true;
              gsn = sn;
-             StdOut.printf(" step=%d, moves=%d, manhattan=%d, hamming=%d, priorities=%d\n", 
+  /*           StdOut.printf(" step=%d, moves=%d, manhattan=%d, hamming=%d, priorities=%d\n", 
                    step, sn.moves, sn.man, sn.ham, 
                    sn.moves + sn.man);
              StdOut.println("===================");
-             break;
+ */            break;
           } else {
              step++;
              // all neighboring search nodes
@@ -64,8 +64,7 @@ public class Solver {
           }
           if (tsn.goal) { // twins tach goal. origin not solvable 
              tgoal = true;
-             StdOut.println("Twin resolved. Origin is not solvable!");
-             gsn.moves = -1;
+   //          StdOut.printf("Twin resolved by %d move. Origin is not solvable!\n", tsn.moves);
           } else {
              if (tsn.prev != null)
                 tbr0 = tsn.prev.node;
@@ -84,7 +83,10 @@ public class Solver {
        } // end main loop while
     }
     public boolean isSolvable()  { return goal; } // is the initial board solvable?
-    public int moves() { return gsn.moves; } // min number of moves to solve initial board; -1 if unsolvable
+    public int moves() {  // min number of moves to solve initial board; -1 if unsolvable
+       if (gsn == null) return -1;
+       return gsn.moves;
+    }
     public Iterable<Board> solution()  {    // sequence of boards in a shortest solution; null if unsolvable
        SearchNode tsn = gsn;
        Stack<Board> st = new Stack<Board>();
@@ -103,14 +105,14 @@ public class Solver {
        private Board node;
        private SearchNode prev;
        private boolean goal;
-       private int ham, man;
+       private int man; // ham
        SearchNode(Board board, SearchNode pre) {
           node = board;
           prev = pre;
           if (pre == null) moves = 0; 
           else moves = prev.moves + 1;
           goal = node.isGoal();
-          ham = node.hamming();
+        //  ham = node.hamming();
           man = node.manhattan();
        }
        public int compareTo(SearchNode n) {

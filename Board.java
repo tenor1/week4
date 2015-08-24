@@ -7,18 +7,11 @@ public class Board {
    // construct a board from an N-by-N array of blocks 
    // (where blocks[i][j] = block in row i, column j)
     public Board(int[][] blocks) {
-       int dx = 0, dy = 0;
-       if (blocks[0][0] == 0 && blocks[0][1] == 0) { // from Board array
-          N = blocks[0].length - 1;                 
-       } else {
-          N = blocks[0].length;                      // from blocks array
-          dy = 1;
-          dx = 1;
-       }
-       b = new int[N+1][N+1];
-       for (int i = 1; i <= N; i++)
-          for (int j = 1; j <= N; j++) {
-             b[i][j] = blocks[i-dy][j-dx];
+       N = blocks.length;
+       b = new int[N][N];
+       for (int i = 0; i < N; i++)
+          for (int j = 0; j < N; j++) {
+             b[i][j] = blocks[i][j];
           }
     }
     
@@ -35,15 +28,15 @@ public class Board {
        int num = 1;
        int[] er = new int[N*N+1]; // goal number row(er), and col(ec);
        int[] ec = new int[N*N+1];
-       for (int i = 1; i <= N; i++)
-          for (int j = 1; j <= N; j++) {
+       for (int i = 0; i < N; i++)
+          for (int j = 0; j < N; j++) {
              er[num] = i;
              ec[num++] = j;
           }
        er[0] = er[--num];
        ec[0] = ec[num];
-       for (int i = 1; i <= N; i++)
-          for (int j = 1; j <= N; j++) {
+       for (int i = 0; i < N; i++)
+          for (int j = 0; j < N; j++) {
              if (b[i][j] != 0) {
                 bb = b[i][j];
                 if (er[bb] > i) dr = er[bb] - i;
@@ -58,13 +51,13 @@ public class Board {
 
     public int hamming() { // number of blocks out of place
        int num = 1, hm = 0, ns = N*N;
-       for (int i = 1; i <= N; i++)
-          for (int j = 1; j <= N && num < ns; j++) {
+       for (int i = 0; i < N; i++)
+          for (int j = 0; j < N && num < ns; j++) {
              if ((b[i][j] != 0) && (b[i][j] != num))
                 hm++;
              num++;
           }
-       if (b[N][N] != 0)
+       if (b[N-1][N-1] != 0)
           hm++;
        return hm;      
     }
@@ -72,24 +65,23 @@ public class Board {
     
     public boolean isGoal() { // is this board the goal board?
        int num = 1, ns = N*N;
-       for (int i = 1; i <= N; i++)
-          for (int j = 1; j <= N && num < ns; j++)
+       for (int i = 0; i < N; i++)
+          for (int j = 0; j < N && num < ns; j++)
              if (b[i][j] != num++)
                 return false;
        return true;       
     }              
     // a board that is obtained by exchanging two adjacent blocks in the same row
     public Board twin() {
-       int k;
-       k = 1;
-       if (b[k][k] == 0 || b[k][k+1] == 0)
-          k = 2;
-       int tmp = b[k][1]; 
-       b[k][1] = b[k][2];
-       b[k][2] = tmp;
-       Board tw = new Board(b);
-       b[k][2] = b[k][1];
+       int k = 0;
+       if (b[k][0] == 0 || b[k][1] == 0)
+          k = 1;
+       int tmp = b[k][0]; 
+       b[k][0] = b[k][1];
        b[k][1] = tmp;
+       Board tw = new Board(b);
+       b[k][1] = b[k][0];
+       b[k][0] = tmp;
        return tw;
     }
     
@@ -99,8 +91,8 @@ public class Board {
        if (y.getClass() != this.getClass()) return false;
        Board that = (Board) y;
        if (that.N != this.N) return false;
-       for (int i = 1; i <= N; i++)
-          for (int j = 1; j <= N; j++)
+       for (int i = 0; i < N; i++)
+          for (int j = 0; j < N; j++)
              if (that.b[i][j] != this.b[i][j])
                 return false;
        return true;
@@ -109,19 +101,19 @@ public class Board {
     public Iterable<Board> neighbors() {    // all neighboring boards
        Stack<Board> st = new Stack<Board>();
        int rr = 0, cc = 0;
-       for (int i = 1; i <= N && rr == 0; i++)
-          for (int j = 1; j <= N && cc == 0; j++)
+       for (int i = 0; i < N && rr == 0; i++)
+          for (int j = 0; j < N && cc == 0; j++)
              if (b[i][j] == 0) {
                 rr = i;
                 cc = j;
              }
-       if (cc > 1)
+       if (cc > 0)
           st.push(createNeiBoard(rr, cc - 1, rr, cc));  // not left
-       if (cc < N)
+       if (cc < N - 1)
           st.push(createNeiBoard(rr, cc + 1, rr, cc));  // not right
-       if (rr > 1)
+       if (rr > 0)
           st.push(createNeiBoard(rr - 1, cc, rr, cc));  // not top
-       if (rr < N)
+       if (rr < N - 1)
           st.push(createNeiBoard(rr + 1, cc, rr, cc));  // not bottom
        return st;
     }
@@ -136,8 +128,8 @@ public class Board {
     public String toString() {              // string representation of this board (in the output format specified below)
        StringBuilder ss = new StringBuilder();
        ss.append(N + "\n");
-       for (int i = 1; i <= N; i++) {
-           for (int j = 1; j <= N; j++) {
+       for (int i = 0; i < N; i++) {
+           for (int j = 0; j < N; j++) {
                ss.append(String.format("%2d ", b[i][j]));
            }
            ss.append("\n");
