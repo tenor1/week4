@@ -44,7 +44,7 @@ public class Board {
        int num = 1, hm = 0, ns = N*N;
        for (int i = 1; i <= N; i++)
           for (int j = 1; j <= N && num < ns; j++)
-             if (b[i][j] != num++)
+             if ((b[i][j] != 0) && (b[i][j] != num++))
                 hm++;
        if (b[N][N] != 0)
           hm++;
@@ -58,17 +58,19 @@ public class Board {
        int bb;             // number in tile
        for (int i = 1; i <= N; i++)
           for (int j = 1; j <= N; j++) {
-             bb = b[i][j];
-             if (er[bb] > i) dr = er[bb] - i;
-             else            dr = i - er[bb];
-             if (ec[bb] > j) dc = ec[bb] - j;
-             else            dc = j - ec[bb];
-             mn += dr + dc;
+             if (b[i][j] != 0) {
+                bb = b[i][j];
+                if (er[bb] > i) dr = er[bb] - i;
+                else            dr = i - er[bb];
+                if (ec[bb] > j) dc = ec[bb] - j;
+                else            dc = j - ec[bb];
+                mn += dr + dc;
+             }
           }
        return mn;
     }
 
-    public boolean isGoalComp() {
+    private boolean isGoalComp() {
        // return hamming() == 0;
        int num = 1, ns = N*N;
        for (int i = 1; i <= N; i++)
