@@ -4,27 +4,32 @@ import edu.princeton.cs.algs4.StdOut;
 
 
 public class Solver {
-    private MinPQ<SearchNode> pq;
-    private boolean goal;
+    private MinPQ<SearchNode> pq, tpq;
+    private boolean goal, tgoal;
     //private int moves;
     private SearchNode gsn;
     public Solver(Board initial)  { // find a solution to the initial board (using the A* algorithm)
        if (initial == null)
           throw new NullPointerException("Parameter for Solver is null!");
        pq = new MinPQ<SearchNode>();
-       Stack<Board> st1;
-       SearchNode sn0, sn, sn1;
-       Board br0, br = initial;
+       tpq = new MinPQ<SearchNode>();
+       Stack<Board> st1, tst1;
+       SearchNode sn, sn1, tsn, tsn1;
+       Board br0, br, tbr0, tbr = initial;
        goal = false;
+       tgoal = false;
        //moves = 0;
        int step = 0;
        sn = new SearchNode(initial, null);
+       tsn = new SearchNode(sn.node.twin(), null);   // create twin
        // insert the initial search node (the initial board, 0 moves, 
        // and a null previous search node) into a priority queue
        pq.insert(sn);
-       while (!goal && !pq.isEmpty()) {
+       tpq.insert(tsn);
+       while (!goal && !pq.isEmpty() && !tgoal) {
           //delete from the priority queue the search node with the minimum priority
           sn = pq.delMin();
+          tsn = tpq.delMin();
 //          StdOut.print(sn.node);
           if (sn.goal) {
              goal = true;
@@ -34,37 +39,54 @@ public class Solver {
                    sn.moves + sn.man);
              StdOut.println("===================");
              break;
-          }
-          step++;
-          // all neighboring search nodes
-          if (sn.prev != null)
-             br0 = sn.prev.node;
-          else br0 = null;
-          st1 =  (Stack<Board>) sn.node.neighbors();
-          //insert onto the priority queue 
-          while (!st1.isEmpty()) {
-             br = st1.pop();
-//             StdOut.println("compare ");
-//             StdOut.print(br0);
-//             StdOut.println("with");
-//             StdOut.print(br);
-             if (!br.equals(br0)) {
-                sn1 = new SearchNode(br, sn);
-                pq.insert(sn1);
+          } else {
+             step++;
+             // all neighboring search nodes
+             if (sn.prev != null)
+                br0 = sn.prev.node;
+             else br0 = null;
+             st1 =  (Stack<Board>) sn.node.neighbors();
+             //insert onto the priority queue 
+             while (!st1.isEmpty()) {
+                br = st1.pop();
+   //             StdOut.println("compare ");
+   //             StdOut.print(br0);
+   //             StdOut.println("with");
+   //             StdOut.print(br);
+                if (!br.equals(br0)) {
+                   sn1 = new SearchNode(br, sn);
+                   pq.insert(sn1);
+                }
+   //             else {
+   //                StdOut.println("not inserted"); 
+   //             }
              }
-//             else {
-//                StdOut.println("not inserted"); 
-//             }
-                
+          }
+          if (tsn.goal) { // twins tach goal. origin not solvable 
+             tgoal = true;
+             StdOut.println("Twin resolved. Origin is not solvable!");
+             gsn.moves = -1;
+          } else {
+             if (tsn.prev != null)
+                tbr0 = tsn.prev.node;
+             else tbr0 = null;
+             tst1 =  (Stack<Board>) tsn.node.neighbors();
+             //insert onto the priority queue 
+             while (!tst1.isEmpty()) {
+                tbr = tst1.pop();
+                if (!tbr.equals(tbr0)) {
+                   tsn1 = new SearchNode(tbr, tsn);
+                   tpq.insert(tsn1);
+                }
+             }
           }
      //     moves++;
-       }
+       } // end main loop while
     }
-    public boolean isSolvable()            // is the initial board solvable?
-    { return goal; }
+    public boolean isSolvable()  { return goal; } // is the initial board solvable?
     public int moves() { return gsn.moves; } // min number of moves to solve initial board; -1 if unsolvable
     public Iterable<Board> solution()  {    // sequence of boards in a shortest solution; null if unsolvable
-       SearchNode tsn = gsn;;
+       SearchNode tsn = gsn;
        Stack<Board> st = new Stack<Board>();
        while (tsn != null) {
           st.push(tsn.node);
